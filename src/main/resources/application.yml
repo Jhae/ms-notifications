@@ -1,0 +1,76 @@
+mp:
+  messaging:
+    # Avro
+    connector:
+      smallrye-kafka:
+        schema:
+          registry:
+            url: "http://localhost:8084"
+        apicurio:
+          registry:
+            url: "http://localhost:8084"
+    outgoing:
+      new-user-notif-topic-out:
+        topic: "new-user-notif-topic"
+    incoming:
+      new-user-topic-in:
+        auto:
+          offset:
+            reset: "earliest"
+        topic: "new-user-topic"
+        # Avro
+        connector: "smallrye-kafka"
+        value:
+          deserializer: "io.confluent.kafka.serializers.KafkaAvroDeserializer"
+        specific:
+          avro:
+            reader: true
+
+# Kafka
+kafka:
+  bootstrap:
+    servers: localhost:9092
+  # AVRO
+quarkus:
+  datasource:
+    db-kind: postgresql
+    username: pguser
+    password: pgpass
+    jdbc:
+      url: jdbc:postgresql://localhost:5434/bdnotificaciones
+# Swagger UI
+  swagger-ui:
+    always-include: true
+### TELEMETRIA
+# Para Tempo Grafana
+  otel:
+    service:
+      name: ms-notificaciones
+    enabled: true
+    exporter:
+      otlp:
+        endpoint: http://tempo.monitoring.svc.cluster.local:4317
+# Exponer metricas para Prometheus
+  micrometer:
+    export:
+      prometheus:
+        enabled: true
+        path: /q/metrics
+# Formato de logs
+  log:
+    console:
+      format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c.%M] (%t) [traceId=%X{traceId}, spanId=%X{spanId}] %s%e%n"
+
+# Puerto
+  http:
+    port: 8082
+    root-path: "/operations/ms-notifications"
+    non-application-root-path: "/q"
+# CORS
+    cors:
+      enabled: true
+      origins: "*"
+      methods: GET, POST, PUT, DELETE
+      exposed-headers: Content-Disposition
+      access-control-max-age: 24H
+      access-control-allow-credentials: true
