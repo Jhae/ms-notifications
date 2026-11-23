@@ -32,24 +32,39 @@ kafka:
     servers: localhost:9092
   # AVRO
 quarkus:
+  application:
+    name: ms-notifications
+    version: "1.0.0"
+# ORM: (Helm)
   datasource:
     db-kind: postgresql
     username: pguser
     password: pgpass
     jdbc:
       url: jdbc:postgresql://localhost:5434/bdnotificaciones
-# Swagger UI
+#  Open APi
+  smallrye-openapi:
+    path: /q/openapi
+    info-title: "${quarkus.application.name}"
+    info-version: "${quarkus.application.version}"
+
+# Swagger UI (Obligatorio)
   swagger-ui:
     always-include: true
 ### TELEMETRIA
-# Para Tempo Grafana
+# Para Tempo Grafana (Helm)
   otel:
+    sdk:
+      disabled: false
     service:
-      name: ms-notificaciones
+      name: "${quarkus.application.name}-${quarkus.application.version}"
     enabled: true
+    traces:
+#      exporter: "otlp"
     exporter:
       otlp:
-        endpoint: http://tempo.monitoring.svc.cluster.local:4317
+        endpoint: http://localhost:4317
+
 # Exponer metricas para Prometheus
   micrometer:
     export:
@@ -74,3 +89,4 @@ quarkus:
       exposed-headers: Content-Disposition
       access-control-max-age: 24H
       access-control-allow-credentials: true
+
